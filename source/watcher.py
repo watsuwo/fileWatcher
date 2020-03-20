@@ -8,9 +8,10 @@ import glob
 import time
 import fnmatch
 import hashlib
+import change_getter
 
 TARGET = "/home/wataru/workspace/fileWatcher/logs"
-hashes = {}
+hashe_value = {}
 
 class ChangeHandler(FileSystemEventHandler):
 
@@ -28,9 +29,11 @@ class ChangeHandler(FileSystemEventHandler):
             filename = os.path.basename(filepath)
             with open(filepath, 'rb') as f:
                 check = hashlib.md5(f.read()).hexdigest()
-            if filename not in hashes or (hashes[filename] != check) and fnmatch.fnmatch(filename, '*.txt'):
-                hashes[filename] = check
-                print("%sが変更された" %filename)
+            if filename not in hashe_value or (hashe_value[filename] != check) and fnmatch.fnmatch(filename, '*.txt'):
+                hashe_value[filename] = check
+                getter = change_getter.Getter(filepath)
+                changes = getter.get_change()
+                print("%s" %changes)
 
 def main():
     while 1:
