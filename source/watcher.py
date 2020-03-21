@@ -2,15 +2,19 @@
 
 from watchdog.events import FileSystemEventHandler
 from watchdog.observers import Observer
+from email.mime.text import MIMEText
 
+import smtplib
 import os
 import glob
 import time
 import fnmatch
 import hashlib
 import change_getter
+import mailer
 
 TARGET = "/home/wataru/workspace/fileWatcher/logs"
+ERROR_MESSAGE = "NG"
 hash_value = {}
 
 class ChangeHandler(FileSystemEventHandler):
@@ -27,12 +31,19 @@ class ChangeHandler(FileSystemEventHandler):
         else:
             filepath = event.src_path
             filename = os.path.basename(filepath)
+            
             with open(filepath, 'rb') as f:
                 check = hashlib.md5(f.read()).hexdigest()
+
             if filename not in hash_value or (hash_value[filename] != check) and fnmatch.fnmatch(filename, '*.txt'):
                 hash_value[filename] = check
                 getter = change_getter.Getter(filepath)
                 changes = getter.get_change()
+
+                if ERROR_MESSAGE in changes:
+                    mailer.send_mail()
+                else:
+                    pass
             else:
                 pass
 
