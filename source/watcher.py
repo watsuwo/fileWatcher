@@ -11,7 +11,7 @@ import hashlib
 import change_getter
 
 TARGET = "/home/wataru/workspace/fileWatcher/logs"
-hashe_value = {}
+hash_value = {}
 
 class ChangeHandler(FileSystemEventHandler):
 
@@ -19,7 +19,7 @@ class ChangeHandler(FileSystemEventHandler):
         filepath = event.src_path
         filename = os.path.basename(filepath)
         if fnmatch.fnmatch(filename, '*.txt'):
-            print("%sが作成された" %filename)
+            print("%s is created" %filename)
 
     def on_modified(self, event):
         if event.is_directory:
@@ -29,11 +29,12 @@ class ChangeHandler(FileSystemEventHandler):
             filename = os.path.basename(filepath)
             with open(filepath, 'rb') as f:
                 check = hashlib.md5(f.read()).hexdigest()
-            if filename not in hashe_value or (hashe_value[filename] != check) and fnmatch.fnmatch(filename, '*.txt'):
-                hashe_value[filename] = check
+            if filename not in hash_value or (hash_value[filename] != check) and fnmatch.fnmatch(filename, '*.txt'):
+                hash_value[filename] = check
                 getter = change_getter.Getter(filepath)
                 changes = getter.get_change()
-                print("%s" %changes)
+            else:
+                pass
 
 def main():
     while 1:
